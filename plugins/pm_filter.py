@@ -2425,9 +2425,19 @@ async def auto_filter(client, msg, spoll=False):
     if not spoll:
         message = msg
         settings = await get_settings(message.chat.id)
-        if message.text.startswith("/"): return  # ignore commands
+        
+        # Check if PM search is allowed
+        if not ALLOW_PM_SEARCH:
+            return  # Exit if PM search is not allowed
+
+        if message.text.startswith("/"): 
+            return  # ignore commands
+        
         if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
             return
+        
+        # আপনার অতিরিক্ত প্রসেসিং কোড এখানে যুক্ত করুন
+        # উদাহরণস্বরূপ, আপনার ফাইল বা মুভি অনুসন্ধান যুক্ত করতে পারেন
         if len(message.text) < 100:
             search = message.text
             requested_movie = search.strip()
