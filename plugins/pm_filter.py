@@ -100,10 +100,16 @@ BUTTONS2 = {}
 #         except Exception as e:
 #             logger.error(f"Chat Not verified : {e}") 
 
-@Client.on_message((filters.private | filters.group) & filters.text & filters.incoming)
-async def give_filter(client, message):
+@Client.on_message(filters.private & filters.text & filters.incoming)
+async def give_filter_private(client, message):
     k = await manual_filters(client, message)
-    if not k:
+    if k == False:
+        await auto_filter(client, message)
+
+@Client.on_message(filters.group & filters.text & filters.incoming)
+async def give_filter_group(client, message):
+    k = await manual_filters(client, message)
+    if k == False:
         await auto_filter(client, message)
 
 @Client.on_callback_query(filters.regex('rename'))
@@ -2425,19 +2431,9 @@ async def auto_filter(client, msg, spoll=False):
     if not spoll:
         message = msg
         settings = await get_settings(message.chat.id)
-        
-        # Check if PM search is allowed
-        if not ALLOW_PM_SEARCH:
-            return  # Exit if PM search is not allowed
-
-        if message.text.startswith("/"): 
-            return  # ignore commands
-        
+        if message.text.startswith("/"): return  # ignore commands
         if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
             return
-        
-        # আপনার অতিরিক্ত প্রসেসিং কোড এখানে যুক্ত করুন
-        # উদাহরণস্বরূপ, আপনার ফাইল বা মুভি অনুসন্ধান যুক্ত করতে পারেন
         if len(message.text) < 100:
             search = message.text
             requested_movie = search.strip()
@@ -2871,3 +2867,5 @@ async def manual_filters(client, message, text=False):
                 break
     else:
         return False
+
+                    
